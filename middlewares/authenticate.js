@@ -10,7 +10,7 @@ var secret = "diego";
     }
 
     //var token = req.headers.authorization;
-    token = req.headers.authorization.replace("Bearer ", "").trim();
+    token = req.headers.authorization.replace("Bearer ", "").trim(); //Se le aplicó el .trim() para quitarle el Bearer si no no se reconoce el JWT
     var segment = token.split('.');
 
     if(segment.length != 3){
@@ -28,5 +28,4 @@ var secret = "diego";
     //Ahora el campo usuario va a tener la payload decodificada desde el token
     req.user = payload;
     next();
-
  }

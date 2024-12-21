@@ -11,7 +11,13 @@ const registro_usuario_admin = async function (req, res) {
     let usuarios = await Usuario.find({ email: data.email });
 
     if (usuarios.length >= 1) {
-      res.status(200).send({ data: undefined, message: "El correo ya existe" });
+      res.status(400).send({ 
+        data:{
+          undefined,
+          message: "El correo ya existe",
+          status: 400
+      }  
+    });
     } else {
       bcrypt.hash(data.password, null, null, async function (err, hash) {
         if (err) {
@@ -19,7 +25,13 @@ const registro_usuario_admin = async function (req, res) {
         } else {
           data.password = hash;
           let usuario = await Usuario.create(data);
-          res.status(200).send({ data: usuario });
+          res.status(200).send({ 
+            data:{
+              usuario,
+              message:'Usuario Agregado Exitosamente',
+              status: 200
+            }
+          });
         }
       });
     }
@@ -40,9 +52,11 @@ const login_usuario = async function(req, res){
         bcrypt.compare(data.password, usuarios[0].password, async function(err,check){
            
             if(check){
+              // Filtrar los campos deseados del usuario
+              const { nombre, apellidos, email, rol, estado } = usuarios[0];
                 res.status(200).send({
                     token:jwt.createToken(usuarios[0]), 
-                    usuario:usuarios[0]});
+                    usuario:{ nombre, apellidos, email, rol, estado },});
             }else{
                 res.status(200).send({data:undefined, message:'La contraseña es incorrecta'})
             }
@@ -54,7 +68,23 @@ const login_usuario = async function(req, res){
     
 }
 
+const listar_listar_admin = async function(req,res){
+  if (req.user){
+    let usuarios = await Usuario.find();
+
+    
+
+    res.status(200).send({
+      data:{
+        usuarios
+      }});
+  }else{
+    res.status(500).send({ data: undefined, message: "ErrorToken" });
+  }
+}
+
 module.exports = {
     registro_usuario_admin,
-    login_usuario
+    login_usuario,
+    listar_listar_admin
 }
